@@ -14,11 +14,14 @@ interface NoteSelectorProps {
 
 const NoteSelector = ({ className, scale, setScale }: NoteSelectorProps) => {
     const toggleNoteSelection = (note: Note) => {
-        setScale((prev) =>
-            prev.includes(note)
+        setScale((prev) => {
+            if (prev === null) {
+                return null
+            }
+            return prev.includes(note)
                 ? prev.filter(n => n !== note)
                 : [...prev, note]
-        );
+        });
     };
 
     return (

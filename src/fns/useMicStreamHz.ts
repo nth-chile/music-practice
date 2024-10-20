@@ -72,7 +72,7 @@ const useMicStreamHz = (isDetectingPitch: boolean, threshold: number) => {
                 setHz(pitch)
             }
 
-            setTimeout(getPitch, pitchDetectRate);
+            setTimeout(getPitch, pitchDetectRate ?? undefined);
         }
 
         if (didInit && isDetectingPitch) {

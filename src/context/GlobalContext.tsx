@@ -9,8 +9,8 @@ interface GlobalContextProps {
     howlRef: React.MutableRefObject<Howl | null>;
     isLoaded: boolean;
     didGetMicPermission: boolean;
-    modeValSampleRate: number;
-    pitchDetectRate: number;
+    modeValSampleRate: number | null;
+    pitchDetectRate: number | null;
     setPitchDetectRate: (value: number) => void;
     setModeValSampleRate: (value: number) => void;
     setDidGetMicPermission: (value: boolean) => void;
