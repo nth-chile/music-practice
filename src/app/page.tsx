@@ -1,113 +1,92 @@
-import Image from "next/image";
+"use client"
+
+import NumberInput from "@/components/NumberInput";
+import NumberInput2 from "@/components/NumberInput2";
+import Player from "@/components/Player";
+import NoteSelector from "@/components/NoteSelector";
+import { useCallback, useEffect, useState } from "react"
+import Cookies from "js-cookie"
+import { useGlobalContext } from "@/context/GlobalContext";
+import LabelWithPopover from "@/components/LabelWithPopover";
+
+const ThresholdLabel = <LabelWithPopover label="Threshold" info="Amplitude threshold for detecting a note. Increase this value to analyze less ambient sound." />
+
+export type Note = 'C' | 'Db' | 'D' | 'Eb' | 'E' | 'F' | 'Gb' | 'G' | 'Ab' | 'A' | 'Bb' | 'B'
 
 export default function Home() {
+  const [numNotes, setNumNotes] = useState<number | null>(null)
+  const [bpm, setBpm] = useState<number | null>(null)
+  const [scale, setScale] = useState<Note[] | null>(null)
+  // Increase value to analyze less ambient sound
+  const [threshold, setThreshold] = useState<number | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const { setDidGetMicPermission, didGetMicPermission, modeValSampleRate, setModeValSampleRate, pitchDetectRate, setPitchDetectRate } = useGlobalContext()
+
+  const onClickStart = useCallback(() => {
+    if (!didGetMicPermission) {
+      // request mic access
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(() => {
+          setDidGetMicPermission(true)
+        })
+    }
+
+    setIsPlaying(!isPlaying)
+  }, [didGetMicPermission, isPlaying, setDidGetMicPermission])
+
+  useEffect(() => {
+    setNumNotes(Number(Cookies.get('numNotes')) || 4)
+    setBpm(Number(Cookies.get('bpm')) || 80)
+    setScale(Cookies.get('scale')?.split(',') as Note[] || ['C', 'D', 'E', 'F', 'G', 'A', 'B'])
+    setThreshold(Number(Cookies.get('threshold')) || .001)
+  }, [])
+
+  useEffect(() => {
+    if (bpm) {
+      Cookies.set('bpm', bpm.toString())
+    }
+  }, [bpm])
+
+  useEffect(() => {
+    if (scale) {
+      Cookies.set('scale', scale.toString())
+    }
+  }, [scale])
+
+  useEffect(() => {
+    if (numNotes) {
+      Cookies.set('numNotes', numNotes.toString())
+    }
+  }, [numNotes])
+
+  useEffect(() => {
+    if (threshold) {
+      Cookies.set('threshold', threshold.toString())
+    }
+  }, [threshold])
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main className="flex min-h-screen flex-col items-center justify-center p-10 text-center">
+      <div className="flex flex-col flex-grow justify-end">
+        {typeof bpm === "number" && typeof numNotes === "number" && scale && <Player numNotes={numNotes} scale={scale} bpm={bpm} isPlaying={isPlaying} threshold={Number(threshold)} />}
+        <div className="flex gap-6 justify-between items-center mb-4">
+          {typeof bpm === "number" && <NumberInput2 label="BPM" value={bpm} setValue={setBpm} min={20} max={200} />}
+          {typeof numNotes === "number" && <NumberInput value={numNotes} setValue={setNumNotes} min={1} max={10} label="Sequence length" />}
+          {typeof threshold === "number" && <NumberInput2 label={ThresholdLabel} value={threshold} setValue={setThreshold} min={0} max={1} step={.001} inputClass="w-16" />}
         </div>
+        {scale && <NoteSelector className="mb-10" scale={scale} setScale={setScale} />}
+        <button onClick={onClickStart} className="mx-auto w-fit rounded py-2 px-6 bg-blue-500 text-color uppercase">{isPlaying ? "Stop" : "Start"}</button>
       </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="prose prose-invert prose-lg flex flex-col flex-grow justify-end">
+        <p>Listen to the melody, then play it back.</p>
+        <small className="block">Requires microphone access</small>
       </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      {typeof modeValSampleRate === "number" && typeof pitchDetectRate === "number" &&
+        <div className="absolute bottom-0 right-0 pb-2 pr-2 flex flex-col">
+          <h2 className="prose prose-invert">dev controls</h2>
+          <NumberInput2 label="MVSR" value={modeValSampleRate} setValue={setModeValSampleRate} min={0} max={1000} />
+          <NumberInput2 label="PDR" value={pitchDetectRate} setValue={setPitchDetectRate} min={0} max={1000} />
+        </div>}
     </main>
   );
 }
