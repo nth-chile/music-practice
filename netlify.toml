@@ -1,0 +1,6 @@
+[context.music-practice]
+  command = "npm run build"
+  publish = ".next/"
+
+[[context.music-practice.plugins]]
+  package = "@netlify/plugin-nextjs"
