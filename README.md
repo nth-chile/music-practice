@@ -1,3 +1,3 @@
-# readme
+Call and response music practice: listen to the melody, then play it back.
 
-I'm using some stuff from https://github.com/xmacex/piano for piano samples. I'm guessing the names of the audio sprites ff, mf and pp stand for fortissimo, mezzo-forte, and pianissimo.
+Piano sample from https://github.com/xmacex/piano
