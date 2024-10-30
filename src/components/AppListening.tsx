@@ -3,7 +3,7 @@ import useMicStreamHz from '@/fns/useMicStreamHz';
 import useModeValueEveryInterval from '@/fns/useModeValueEveryInterval';
 import hzToNote from '@/fns/hzToNote';
 import Dot, { DotStyle } from './Dot';
-import { useGlobalContext } from '@/context/GlobalContext';
+import { MODE_VALUE_RETURN_RATE } from '@/constants/constants.json';
 
 interface Props {
     bpm: number;
@@ -17,13 +17,12 @@ interface Props {
 const AppListening = ({
     className, expectedSequence, onFinish, listening, bpm, threshold
 }: Props) => {
-    const { modeValueReturnRate } = useGlobalContext();
     // Start receiving mic stream in hz
     const hz = useMicStreamHz(listening, threshold);
     // Mic stream as a note
     const note = hzToNote(hz);
     // Mode note per beat
-    const modeNote = useModeValueEveryInterval(note, listening ? modeValueReturnRate : null);
+    const modeNote = useModeValueEveryInterval(note, listening ? MODE_VALUE_RETURN_RATE : null);
     // notes heard
     const [noteList, setNoteList] = useState<string[]>([]);
     // Need a non-reactive reference to noteList

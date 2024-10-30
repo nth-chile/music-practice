@@ -9,7 +9,7 @@
 
 import { useState } from 'react';
 import useInterval from './useInterval';
-import { useGlobalContext } from '@/context/GlobalContext';
+import { MODE_VALUE_SAMPLE_RATE } from '@/constants/constants.json';
 
 function findMode(arr: any[]) {
     const obj: { [k: string]: number } = {};
@@ -36,7 +36,6 @@ const useModeValueEveryInterval = (value: any, interval: number | null) => {
     const [lastSample, setLastSample] = useState<number>(Date.now());
     const [sampleArr, setSampleArr] = useState<any[]>([]);
     const [mode, setMode] = useState<any>(null);
-    const { modeValSampleRate } = useGlobalContext();
 
     useInterval(() => {
         // Usually value is null, so don't include all the nulls in the sample!
@@ -49,7 +48,7 @@ const useModeValueEveryInterval = (value: any, interval: number | null) => {
             setMode(findMode(sampleArr));
             setSampleArr([]);
         }
-    }, interval ? modeValSampleRate : null); // If null is passed to useInterval it will be "paused"
+    }, interval ? MODE_VALUE_SAMPLE_RATE : null); // If null is passed to useInterval it will be "paused"
 
     // return mode;
     return mode;

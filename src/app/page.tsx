@@ -20,7 +20,7 @@ export default function Home() {
   // Increase value to analyze less ambient sound
   const [threshold, setThreshold] = useState<number | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const { setDidGetMicPermission, didGetMicPermission, modeValSampleRate, setModeValSampleRate, pitchDetectRate, setPitchDetectRate, modeValueReturnRate, setModeValueReturnRate } = useGlobalContext()
+  const { setDidGetMicPermission, didGetMicPermission } = useGlobalContext()
 
   const onClickStart = useCallback(() => {
     if (!didGetMicPermission) {
@@ -81,13 +81,6 @@ export default function Home() {
         <p>Listen to the melody, then play it back.</p>
         <small className="block">Requires microphone access</small>
       </div>
-      {typeof modeValSampleRate === "number" && typeof pitchDetectRate === "number" && typeof modeValueReturnRate === "number" && typeof bpm === "number" &&
-        <div className="absolute bottom-0 right-0 pb-2 pr-2 flex flex-col items-center">
-          <h2 className="prose prose-invert">temporary dev stuff:</h2>
-          <NumberInput2 label="Mode value sample rate" value={modeValSampleRate} setValue={setModeValSampleRate} min={0} max={1000} />
-          <NumberInput2 label="Pitch detection rate" value={pitchDetectRate} setValue={setPitchDetectRate} min={0} max={1000} />
-          <NumberInput2 label="Mode value return rate" value={modeValueReturnRate} setValue={setModeValueReturnRate} min={0} max={60000 / bpm} />
-        </div>}
     </main>
   );
 }

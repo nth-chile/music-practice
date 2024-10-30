@@ -2,15 +2,13 @@
  * - Requests microphone permission
  * - Returns state with hertz value
  * - Returns null after deciding that it's not hearing a note
- * - The detectPitch function takes about 10ms on my machine. So, setHz is called every pitchDetectRate + ~10ms
  * 
- *
  * ONLY WORKS IF MOUNTED AFTER PAGE HAS RECEIVED USER INTERACTION
  */
 
 import { useEffect, useRef, useState } from 'react';
 import Pitchfinder from 'pitchfinder';
-import { useGlobalContext } from '@/context/GlobalContext';
+import { PITCH_DETECT_RATE } from '@/constants/constants.json';
 
 // This is the default, but we need it to init the array
 const FFT_SIZE = 2048
@@ -23,7 +21,6 @@ const useMicStreamHz = (isDetectingPitch: boolean, threshold: number) => {
     // array that we'll mutate to hold audio data, which we can then get the pitch from
     const buffer = useRef(new Float32Array(FFT_SIZE));
     const analyser = useRef<AnalyserNode>()
-    const { pitchDetectRate } = useGlobalContext();
 
     useEffect(() => {
         let audioContext: AudioContext;
@@ -75,7 +72,8 @@ const useMicStreamHz = (isDetectingPitch: boolean, threshold: number) => {
                 setHz(pitch)
             }
 
-            timeout = setTimeout(getPitch, pitchDetectRate ?? 0);
+            // The detectPitch function takes about 10ms on my machine. So, setHz is called every PITCH_DETECT_RATE + ~10ms
+            timeout = setTimeout(getPitch, PITCH_DETECT_RATE);
         }
         if (didInit && isDetectingPitch) {
             getPitch();
@@ -84,7 +82,7 @@ const useMicStreamHz = (isDetectingPitch: boolean, threshold: number) => {
         return () => {
             clearTimeout(timeout);
         }
-    }, [isDetectingPitch, didInit, threshold, pitchDetectRate])
+    }, [isDetectingPitch, didInit, threshold])
 
     return hz;
 };
