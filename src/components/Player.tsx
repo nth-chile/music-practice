@@ -54,9 +54,12 @@ const Player: React.FC<PlayerProps> = ({ numNotes, scale, bpm, isPlaying, thresh
     }, [bpm])
 
     const onFinishAppListening = useCallback(() => {
-        setSequence(getSequence())
-        setListeningMode('user');
-    }, [getSequence])
+        // Waiting one beat feels more intuitive for the user
+        setTimeout(() => {
+            setSequence(getSequence())
+            setListeningMode('user');
+        }, 60 * 1000 / bpm);
+    }, [getSequence, bpm])
 
     if (!isLoaded) {
         return <div className='relative' style={{ height: 100 }}>
