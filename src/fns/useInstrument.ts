@@ -63,11 +63,8 @@ export default function useInstrument({
 
       if (!nextNote) {
         if (onSequenceEnded) {
-          // Using timeout so last note isn't cut abruptly
-          setTimeout(() => {
-            setIsPlaying(false)
-            onSequenceEnded()
-          }, FADE_DURATION)
+          setIsPlaying(false)
+          onSequenceEnded()
         }
 
         return

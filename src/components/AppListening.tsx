@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, use } from 'react';
 import useMicStreamHz from '@/fns/useMicStreamHz';
 import useModeValueEveryInterval from '@/fns/useModeValueEveryInterval';
 import hzToNote from '@/fns/hzToNote';
 import Dot, { DotStyle } from './Dot';
+import { useGlobalContext } from '@/context/GlobalContext';
 
 interface Props {
     bpm: number;
@@ -16,12 +17,13 @@ interface Props {
 const AppListening = ({
     className, expectedSequence, onFinish, listening, bpm, threshold
 }: Props) => {
+    const { modeValueReturnRate } = useGlobalContext();
     // Start receiving mic stream in hz
     const hz = useMicStreamHz(listening, threshold);
     // Mic stream as a note
     const note = hzToNote(hz);
     // Mode note per beat
-    const modeNote = useModeValueEveryInterval(note, listening ? 60000 / bpm : null);
+    const modeNote = useModeValueEveryInterval(note, listening ? modeValueReturnRate : null);
     // notes heard
     const [noteList, setNoteList] = useState<string[]>([]);
     // Need a non-reactive reference to noteList
@@ -51,7 +53,7 @@ const AppListening = ({
         // First make all of the current & past beats blue. We'll overwrite red/green afterwards
         for (let i = 0; i < noteList.length + 1; i++) {
             if (newDotStyles[i]) {
-                newDotStyles[i] = 'blue';
+                newDotStyles[i] = 'empty';
             }
         }
 
@@ -67,12 +69,10 @@ const AppListening = ({
         setDotStyles(newDotStyles);
     }, [noteList, listening, expectedSequence, initialDotStyles]);
 
-    // call onFinish one beat after expectedSequence.length notes heard
+    // call onFinish after expectedSequence.length notes heard
     useEffect(() => {
         if (noteList.length === expectedSequence.length) {
-            setTimeout(() => {
-                onFinish(noteList);
-            }, 60000 / bpm);
+            onFinish(noteList);
         }
     }, [bpm, expectedSequence.length, noteList, onFinish]);
 

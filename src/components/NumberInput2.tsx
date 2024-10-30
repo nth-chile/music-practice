@@ -72,7 +72,7 @@ const NumberInput2: React.FC<SliderProps> = ({ inputClass = 'w-12', step = 1, cl
     return (
         <div className={`w-fit inline-block ${className}`}>
             {typeof label === "string" ? <label className='prose prose-invert prose-sm uppercase'>{label}</label> : label}
-            <div className="flex items-center rounded overflow-hidden">
+            <div className="flex items-center rounded overflow-hidden justify-center">
                 <button onClick={decrement} className="px-2 py-1 bg-neutral-300 text-neutral-950">−</button>
                 <input
                     ref={inputRef}

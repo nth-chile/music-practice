@@ -11,6 +11,8 @@ interface GlobalContextProps {
     didGetMicPermission: boolean;
     modeValSampleRate: number | null;
     pitchDetectRate: number | null;
+    modeValueReturnRate: number | null;
+    setModeValueReturnRate: (value: number) => void;
     setPitchDetectRate: (value: number) => void;
     setModeValSampleRate: (value: number) => void;
     setDidGetMicPermission: (value: boolean) => void;
@@ -28,6 +30,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     const [didGetMicPermission, setDidGetMicPermission] = useState(false);
     const [modeValSampleRate, setModeValSampleRate] = useState<number | null>(null);
     const [pitchDetectRate, setPitchDetectRate] = useState<number | null>(null);
+    const [modeValueReturnRate, setModeValueReturnRate] = useState<number | null>(null);
 
     // This takes a while, so let's load it immediately
     useEffect(() => {
@@ -46,25 +49,35 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        setModeValSampleRate(Number(Cookies.get('modeValSampleRate')) || 90)
-        setPitchDetectRate(Number(Cookies.get('pitchDetectRate')) || 10)
+        const modeValSampleRateFromCookie = Number(Cookies.get('modeValSampleRate'))
+        const pitchDetectRateFromCookie = Number(Cookies.get('pitchDetectRate'))
+        const modeValueReturnRateFromCookie = Number(Cookies.get('modeValueReturnRate'))
+        setModeValSampleRate(isNaN(modeValSampleRateFromCookie) ? 90 : modeValSampleRateFromCookie)
+        setPitchDetectRate(isNaN(pitchDetectRateFromCookie) ? 10 : pitchDetectRateFromCookie)
+        setModeValueReturnRate(isNaN(modeValueReturnRateFromCookie) ? 0 : modeValueReturnRateFromCookie)
     }, [])
 
     useEffect(() => {
-        if (modeValSampleRate) {
+        if (typeof modeValueReturnRate === 'number') {
+            Cookies.set('modeValueReturnRate', modeValueReturnRate.toString())
+        }
+    }, [modeValueReturnRate])
+
+    useEffect(() => {
+        if (typeof modeValSampleRate === 'number') {
             Cookies.set('modeValSampleRate', modeValSampleRate.toString())
         }
     }, [modeValSampleRate])
 
     useEffect(() => {
-        if (pitchDetectRate) {
+        if (typeof pitchDetectRate === 'number') {
             Cookies.set('pitchDetectRate', pitchDetectRate.toString())
         }
     }, [pitchDetectRate])
 
     return (
         <GlobalContext.Provider value={{
-            howlRef, isLoaded, didGetMicPermission, setDidGetMicPermission, modeValSampleRate, setModeValSampleRate, pitchDetectRate, setPitchDetectRate
+            howlRef, isLoaded, didGetMicPermission, setDidGetMicPermission, modeValSampleRate, setModeValSampleRate, pitchDetectRate, setPitchDetectRate, modeValueReturnRate, setModeValueReturnRate
         }}>
             {children}
         </GlobalContext.Provider>

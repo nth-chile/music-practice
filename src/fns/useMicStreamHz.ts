@@ -2,6 +2,8 @@
  * - Requests microphone permission
  * - Returns state with hertz value
  * - Returns null after deciding that it's not hearing a note
+ * - The detectPitch function takes about 10ms on my machine. So, setHz is called every pitchDetectRate + ~10ms
+ * 
  *
  * ONLY WORKS IF MOUNTED AFTER PAGE HAS RECEIVED USER INTERACTION
  */
@@ -54,11 +56,12 @@ const useMicStreamHz = (isDetectingPitch: boolean, threshold: number) => {
     }, []);
 
     useEffect(() => {
+        let timeout: NodeJS.Timeout | undefined;
+
         function getPitch() {
             if (!isDetectingPitch || !analyser.current) {
                 return
             }
-
             // mutate the buffer array with current audio data
             analyser.current.getFloatTimeDomainData(buffer.current);
 
@@ -72,11 +75,14 @@ const useMicStreamHz = (isDetectingPitch: boolean, threshold: number) => {
                 setHz(pitch)
             }
 
-            setTimeout(getPitch, pitchDetectRate ?? undefined);
+            timeout = setTimeout(getPitch, pitchDetectRate ?? 0);
         }
-
         if (didInit && isDetectingPitch) {
             getPitch();
+        }
+
+        return () => {
+            clearTimeout(timeout);
         }
     }, [isDetectingPitch, didInit, threshold, pitchDetectRate])
 

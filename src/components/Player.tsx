@@ -21,16 +21,22 @@ const Player: React.FC<PlayerProps> = ({ numNotes, scale, bpm, isPlaying, thresh
     const [sequence, setSequence] = useState<string[]>([]);
 
     const getSequence = useCallback(() => {
-        const result = []
+        const result = [];
+        let previousItem = '';
 
         for (let i = 0; i < numNotes; i++) {
-            const randomItem = scale[Math.floor(Math.random() * scale.length)];
-            // Specify octave
-            result.push(`${randomItem}4`)
+            let randomItem;
+            // Avoid repeating the same note twice in a row
+            do {
+                randomItem = scale[Math.floor(Math.random() * scale.length)];
+            } while (randomItem === previousItem);
+
+            previousItem = randomItem;
+            result.push(`${randomItem}4`);
         }
 
-        return result
-    }, [numNotes, scale])
+        return result;
+    }, [numNotes, scale]);
 
     useEffect(() => {
         if (isPlaying) {
@@ -41,8 +47,11 @@ const Player: React.FC<PlayerProps> = ({ numNotes, scale, bpm, isPlaying, thresh
     }, [isPlaying, getSequence])
 
     const onSequenceEnded = useCallback(() => {
-        setListeningMode('app');
-    }, [])
+        // Waiting one beat feels more intuitive for the user
+        setTimeout(() => {
+            setListeningMode('app');
+        }, 60 * 1000 / bpm);
+    }, [bpm])
 
     const onFinishAppListening = useCallback(() => {
         setSequence(getSequence())
