@@ -27,8 +27,10 @@ const NumberInput2: React.FC<SliderProps> = ({ inputClass = 'w-12', step = 1, cl
     }, [value]);
 
     useEffect(() => {
-        setValue(internalValue);
-    }, [internalValue, setValue]);
+        if (value !== internalValue) {
+            setValue(internalValue);
+        }
+    }, [value, internalValue, setValue]);
 
     const validateAndUpdate = () => {
         const numericValue = Number(inputValue);

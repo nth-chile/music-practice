@@ -3,7 +3,9 @@ import useMicStreamHz from '@/fns/useMicStreamHz';
 import useModeValueEveryInterval from '@/fns/useModeValueEveryInterval';
 import hzToNote from '@/fns/hzToNote';
 import Dot, { DotStyle } from './Dot';
-import { MODE_VALUE_RETURN_RATE } from '@/constants/constants.json';
+import CONSTANTS from '@/constants/constants.json';
+
+const { MODE_VALUE_RETURN_RATE } = CONSTANTS;
 
 interface Props {
     bpm: number;

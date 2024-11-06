@@ -8,7 +8,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Pitchfinder from 'pitchfinder';
-import { PITCH_DETECT_RATE } from '@/constants/constants.json';
+import CONSTANTS from '@/constants/constants.json';
+
+const { PITCH_DETECT_RATE } = CONSTANTS
 
 // This is the default, but we need it to init the array
 const FFT_SIZE = 2048

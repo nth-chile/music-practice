@@ -1,5 +1,21 @@
 {
     "PITCH_DETECT_RATE": 0,
     "MODE_VALUE_SAMPLE_RATE": 10,
-    "MODE_VALUE_RETURN_RATE": 200
+    "MODE_VALUE_RETURN_RATE": 200,
+    "COOKIE_OPTIONS": {
+        "path": "/",
+        "maxAge": 999999999999,
+        "secure": true
+    },
+    "VERSION": 1,
+    "COOKIE_DEFAULTS": {
+        "bpm": 80,
+        "numNotes": 4,
+        "defaultThreshold": 0.001,
+        "defaultScale": [
+            "C",
+            "E",
+            "G"
+        ]
+    }
 }

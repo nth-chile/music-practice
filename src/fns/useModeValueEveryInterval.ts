@@ -9,7 +9,9 @@
 
 import { useState } from 'react';
 import useInterval from './useInterval';
-import { MODE_VALUE_SAMPLE_RATE } from '@/constants/constants.json';
+import CONSTANTS from '@/constants/constants.json';
+
+const { MODE_VALUE_SAMPLE_RATE } = CONSTANTS
 
 function findMode(arr: any[]) {
     const obj: { [k: string]: number } = {};

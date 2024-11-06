@@ -3,7 +3,6 @@
 import React, { useState, createContext, useContext, useRef, ReactNode, useEffect } from 'react';
 import { Howl } from 'howler';
 import MF_SPRITE from '@/constants/mf.json';
-import Cookies from "js-cookie"
 
 interface GlobalContextProps {
     howlRef: React.MutableRefObject<Howl | null>;
