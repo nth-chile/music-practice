@@ -1,13 +1,14 @@
 import Dot from './Dot';
+import useLevel from '@/fns/useLevel';
 
 interface Props {
     className?: string;
-    numNotes: number;
 }
 
 const EmptyDots = ({
-    className, numNotes
+    className
 }: Props) => {
+    const { numNotes } = useLevel();
     const dots = [];
 
     for (let i = 0; i < numNotes; i++) {

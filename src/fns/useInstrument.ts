@@ -5,7 +5,6 @@
 */
 
 import {
-  use,
   useCallback, useEffect, useMemo, useRef, useState,
 } from 'react';
 import { useGlobalContext } from '@/context/GlobalContext';
@@ -15,14 +14,14 @@ const FADE_DURATION = 250;
 type UseInstrumentProps = {
   bpm: number;
   onSequenceEnded?: () => any;
-  sequence: string[];
+  sequenceRef: React.MutableRefObject<string[]>;
   play: boolean;
 };
 
 export default function useInstrument({
   bpm,
   onSequenceEnded,
-  sequence,
+  sequenceRef,
   play
 }: UseInstrumentProps) {
   const { howlRef } = useGlobalContext();
@@ -59,7 +58,7 @@ export default function useInstrument({
         howlRef.current?.fade(1, 0, FADE_DURATION, soundId)
       }
 
-      const nextNote = sequence[index]
+      const nextNote = sequenceRef.current[index]
 
       if (!nextNote) {
         if (onSequenceEnded) {
@@ -77,7 +76,7 @@ export default function useInstrument({
     }
 
     playNextNote()
-  }, [sequence, noteDuration, onSequenceEnded, howlRef])
+  }, [sequenceRef, noteDuration, onSequenceEnded, howlRef])
 
   // Handle start and stop
   useEffect(() => {

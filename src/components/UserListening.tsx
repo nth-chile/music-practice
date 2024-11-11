@@ -1,25 +1,33 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Dot from './Dot';
 import useInstrument from '@/fns/useInstrument';
+import useLevel from '@/fns/useLevel';
 
 interface Props {
     className?: string;
-    numNotes: number;
-    sequence: string[];
+    sequenceRef: React.MutableRefObject<string[]>;
     bpm: number;
-    onSequenceEnded: () => void;
     play: boolean;
+    setListeningMode: React.Dispatch<React.SetStateAction<'user' | 'app' | 'stopped'>>;
 }
 
 const UserListening = ({
-    bpm, sequence, className, play, numNotes, onSequenceEnded
+    bpm, sequenceRef, className, play, setListeningMode
 }: Props) => {
+    const onSequenceEnded = useCallback(() => {
+        setTimeout(() => {
+            setListeningMode('app');
+        }, 60 * 1000 / bpm);
+    }, [bpm, setListeningMode]);
+
     const { currentNoteIndex } = useInstrument({
         bpm,
         onSequenceEnded,
-        sequence,
+        sequenceRef,
         play
     })
+
+    const { numNotes } = useLevel();
 
     const dots = [];
 

@@ -7,15 +7,10 @@
         "maxAge": 999999999999,
         "secure": true
     },
-    "VERSION": 1,
+    "VERSION": 2,
     "COOKIE_DEFAULTS": {
         "bpm": 80,
-        "numNotes": 4,
-        "defaultThreshold": 0.001,
-        "defaultScale": [
-            "C",
-            "E",
-            "G"
-        ]
+        "level": "1",
+        "threshold": 0.001
     }
 }

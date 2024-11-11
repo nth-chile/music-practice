@@ -4,20 +4,21 @@ import useModeValueEveryInterval from '@/fns/useModeValueEveryInterval';
 import hzToNote from '@/fns/hzToNote';
 import Dot, { DotStyle } from './Dot';
 import CONSTANTS from '@/constants/constants.json';
+import { Note } from '../app/page';
 
 const { MODE_VALUE_RETURN_RATE } = CONSTANTS;
 
 interface Props {
     bpm: number;
     className?: string;
-    expectedSequence: string[];
-    onFinish: (noteList: string[]) => any;
+    expectedSequenceRef: React.MutableRefObject<string[]>;
+    onFinish: (noteList: Note[]) => void;
     listening: boolean;
     threshold: number;
 }
 
 const AppListening = ({
-    className, expectedSequence, onFinish, listening, bpm, threshold
+    className, expectedSequenceRef, onFinish, listening, threshold, bpm
 }: Props) => {
     // Start receiving mic stream in hz
     const hz = useMicStreamHz(listening, threshold);
@@ -26,22 +27,23 @@ const AppListening = ({
     // Mode note per beat
     const modeNote = useModeValueEveryInterval(note, listening ? MODE_VALUE_RETURN_RATE : null);
     // notes heard
-    const [noteList, setNoteList] = useState<string[]>([]);
+    const [noteList, setNoteList] = useState<Note[]>([]);
     // Need a non-reactive reference to noteList
     const noteListRef = useRef(noteList);
     // Dot styles
-    const initialDotStyles = useMemo(() => new Array(expectedSequence.length).fill('empty'), [expectedSequence]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const initialDotStyles = useMemo(() => new Array(expectedSequenceRef.current.length).fill('empty'), [expectedSequenceRef.current]);
     const [dotStyles, setDotStyles] = useState<DotStyle[]>(initialDotStyles);
 
     // When mode note changes, add it to the noteList
     useEffect(() => {
-        if (modeNote && noteListRef.current.length < expectedSequence.length) {
+        if (modeNote && noteListRef.current.length < expectedSequenceRef.current.length) {
             setNoteList(prev => {
                 noteListRef.current = [...prev, modeNote]
                 return [...prev, modeNote]
             });
         }
-    }, [modeNote, expectedSequence, noteListRef]);
+    }, [modeNote, expectedSequenceRef, noteListRef]);
 
     // do dotStyles
     useEffect(() => {
@@ -49,18 +51,11 @@ const AppListening = ({
             return () => { };
         }
 
-        const newDotStyles = initialDotStyles;
-
-        // First make all of the current & past beats blue. We'll overwrite red/green afterwards
-        for (let i = 0; i < noteList.length + 1; i++) {
-            if (newDotStyles[i]) {
-                newDotStyles[i] = 'empty';
-            }
-        }
+        const newDotStyles = [...initialDotStyles];
 
         // compare to expectedSequence
         for (let i = 0; i < noteList.length; i++) {
-            if (noteList[i] === expectedSequence[i].replace(/[0-9]/g, '')) {
+            if (noteList[i] === expectedSequenceRef.current[i].replace(/[0-9]/g, '')) {
                 newDotStyles[i] = 'blue';
             } else {
                 newDotStyles[i] = 'red';
@@ -68,23 +63,17 @@ const AppListening = ({
         }
 
         setDotStyles(newDotStyles);
-    }, [noteList, listening, expectedSequence, initialDotStyles]);
+    }, [noteList, listening, expectedSequenceRef, initialDotStyles]);
 
-    // call onFinish after expectedSequence.length notes heard
     useEffect(() => {
-        if (noteList.length === expectedSequence.length) {
-            onFinish(noteList);
+        if (noteList.length === expectedSequenceRef.current.length) {
+            setTimeout(() => {
+                setNoteList([]);
+                noteListRef.current = [];
+                onFinish(noteList);
+            }, 60 * 1000 / bpm);
         }
-    }, [bpm, expectedSequence.length, noteList, onFinish]);
-
-    // reset when stopped
-    useEffect(() => {
-        if (!listening) {
-            setNoteList([]);
-            noteListRef.current = [];
-            setDotStyles(initialDotStyles);
-        }
-    }, [listening, initialDotStyles]);
+    }, [noteList, bpm, expectedSequenceRef, onFinish]);
 
     return (
         <div className={className}>

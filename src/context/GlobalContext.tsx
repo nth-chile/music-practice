@@ -7,8 +7,7 @@ import MF_SPRITE from '@/constants/mf.json';
 interface GlobalContextProps {
     howlRef: React.MutableRefObject<Howl | null>;
     isLoaded: boolean;
-    didGetMicPermission: boolean;
-    setDidGetMicPermission: (value: boolean) => void;
+    didGetMicPermission: React.MutableRefObject<boolean>;
 }
 
 interface GlobalProviderProps {
@@ -20,7 +19,7 @@ const GlobalContext = createContext<GlobalContextProps | undefined>(undefined);
 export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
     const howlRef = useRef<Howl | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
-    const [didGetMicPermission, setDidGetMicPermission] = useState(false);
+    const didGetMicPermission = useRef(false);
 
     // This takes a while, so let's load it immediately
     useEffect(() => {
@@ -40,7 +39,7 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
 
     return (
         <GlobalContext.Provider value={{
-            howlRef, isLoaded, didGetMicPermission, setDidGetMicPermission
+            howlRef, isLoaded, didGetMicPermission
         }}>
             {children}
         </GlobalContext.Provider>
