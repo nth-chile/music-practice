@@ -25,6 +25,12 @@ const useMicStreamHz = (isDetectingPitch: boolean, threshold: number) => {
     const analyser = useRef<AnalyserNode>()
 
     useEffect(() => {
+        if (!isDetectingPitch) {
+            setHz(null)
+        }
+    }, [isDetectingPitch])
+
+    useEffect(() => {
         let audioContext: AudioContext;
         let source: MediaStreamAudioSourceNode;
 

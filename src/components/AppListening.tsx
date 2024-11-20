@@ -37,13 +37,17 @@ const AppListening = ({
 
     // When mode note changes, add it to the noteList
     useEffect(() => {
-        if (modeNote && noteListRef.current.length < expectedSequenceRef.current.length) {
+        if (!listening || !modeNote) {
+            return () => { };
+        }
+
+        if (noteListRef.current.length < expectedSequenceRef.current.length) {
             setNoteList(prev => {
                 noteListRef.current = [...prev, modeNote]
                 return [...prev, modeNote]
             });
         }
-    }, [modeNote, expectedSequenceRef, noteListRef]);
+    }, [listening, modeNote, expectedSequenceRef, noteListRef]);
 
     // do dotStyles
     useEffect(() => {
@@ -68,9 +72,10 @@ const AppListening = ({
     useEffect(() => {
         if (noteList.length === expectedSequenceRef.current.length) {
             setTimeout(() => {
+                const currentNoteList = noteListRef.current;
                 setNoteList([]);
                 noteListRef.current = [];
-                onFinish(noteList);
+                onFinish(currentNoteList);
             }, 60 * 1000 / bpm);
         }
     }, [noteList, bpm, expectedSequenceRef, onFinish]);

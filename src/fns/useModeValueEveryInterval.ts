@@ -7,7 +7,7 @@
  * Pass null interval to "pause"
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useInterval from './useInterval';
 import CONSTANTS from '@/constants/constants.json';
 
@@ -39,6 +39,13 @@ const useModeValueEveryInterval = (value: any, interval: number | null) => {
     const [sampleArr, setSampleArr] = useState<any[]>([]);
     const [mode, setMode] = useState<any>(null);
 
+    useEffect(() => {
+        if (interval === null) {
+            setMode(null);
+            setSampleArr([]);
+        }
+    }, [interval]);
+
     useInterval(() => {
         // Usually value is null, so don't include all the nulls in the sample!
         if (value) {
@@ -52,7 +59,6 @@ const useModeValueEveryInterval = (value: any, interval: number | null) => {
         }
     }, interval ? MODE_VALUE_SAMPLE_RATE : null); // If null is passed to useInterval it will be "paused"
 
-    // return mode;
     return mode;
 };
 
